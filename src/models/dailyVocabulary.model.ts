@@ -7,6 +7,7 @@ export interface IDailyVocabularyItem extends Document {
     phonetic: string;
     meaning: string;
     example: string;
+    learned?: boolean;
   }>;
   date: Date;
   progress: number;
