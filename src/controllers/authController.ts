@@ -10,7 +10,7 @@ export const register = async (
   res: Response
 ): Promise<Response> => {
   const { username, name, password, email } = req.body;
-  
+
 
   try {
     const existingUser = await User.findOne({ username });
@@ -53,9 +53,6 @@ export const login = async (req: Request, res: Response) => {
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET as string,
-      {
-        expiresIn: "1h",
-      }
     );
 
     res.status(200).json(successResponse({ token }, "Login successful."));
