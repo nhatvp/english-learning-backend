@@ -10,6 +10,7 @@ export const register = async (
   res: Response
 ): Promise<Response> => {
   const { username, name, password, email } = req.body;
+  
 
   try {
     const existingUser = await User.findOne({ username });
