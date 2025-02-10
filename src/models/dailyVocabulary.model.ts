@@ -27,7 +27,7 @@ const vocabularyWordSchema: Schema = new Schema({
 const dailyVocabularySchema: Schema = new Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   words: { type: [vocabularyWordSchema], required: true },
-  date: { type: Date, default: Date.now },
+  date: { type: String, required: true },
   progress: { type: Number, default: 0 },
   lastLearnedIndex: { type: Number, default: 0 },
 });

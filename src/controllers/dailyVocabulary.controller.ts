@@ -1,12 +1,5 @@
 import { Request, Response } from "express";
 import DailyVocabulary from "../models/dailyVocabulary.model";
-import { AuthRequest } from "../types/custom";
-
-function convertToTimezone7(date: any) {
-  const timezoneOffset = date.getTimezoneOffset() * 60000; // Lấy chênh lệch múi giờ của hệ thống
-  const timezone7 = 7 * 3600000; // Múi giờ +7 (giờ tính bằng milisecond)
-  return new Date(date.getTime() + timezoneOffset + timezone7);
-}
 
 export const getDailyVocabulary = async (
   req: Request,
@@ -15,17 +8,21 @@ export const getDailyVocabulary = async (
   try {
     const userId = (req as any).userId;
 
+    // Lấy ngày hiện tại theo múi giờ +7, chỉ giữ phần ngày (YYYY-MM-DD)
     const now = new Date();
-    const utcTimestamp = now.getTime() + now.getTimezoneOffset() * 6000;
-    const vnToday = new Date(utcTimestamp + 7 * 3600 * 1000);
-    vnToday.setUTCHours(0, 0, 0, 0); // Sử dụng giờ UTC để tránh vấn đề múi giờ
+    const vnTodayStr = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Bangkok",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .format(now)
+      .replace(/\//g, "-");
 
+    // Tìm dữ liệu theo ngày (không quan tâm đến giờ)
     const dailyVocabulary = await DailyVocabulary.findOne({
       userId,
-      date: {
-        $gte: vnToday,
-        $lt: new Date(vnToday.getTime() + 24 * 60 * 60 * 1000), // Lấy khoảng thời gian trong ngày
-      },
+      date: vnTodayStr, // So sánh với chuỗi "YYYY-MM-DD"
     });
 
     if (!dailyVocabulary) {
@@ -47,7 +44,7 @@ export const getDailyVocabulary = async (
       .json({ data: null, status: "error", message: "Lỗi server!" });
   }
 };
-    
+
 export const getUnlearnedWords = async (
   req: Request,
   res: Response
@@ -55,17 +52,21 @@ export const getUnlearnedWords = async (
   try {
     const userId = (req as any).userId;
 
-    // Lấy thời gian hiện tại và chuyển đổi về múi giờ +7
+    // Lấy ngày hiện tại theo múi giờ +7, chỉ giữ phần ngày (YYYY-MM-DD)
     const now = new Date();
-    const vnToday = convertToTimezone7(now);
-    vnToday.setUTCHours(0, 0, 0, 0); // Thiết lập thời gian đầu ngày theo múi giờ +7
+    const vnTodayStr = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Bangkok",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .format(now)
+      .replace(/\//g, "-");
 
+    // Tìm dữ liệu theo ngày
     const dailyVocabulary = await DailyVocabulary.findOne({
       userId,
-      date: {
-        $gte: vnToday,
-        $lt: new Date(vnToday.getTime() + 24 * 60 * 60 * 1000), // Lấy khoảng thời gian trong ngày
-      },
+      date: vnTodayStr, // So sánh với chuỗi "YYYY-MM-DD"
     });
 
     if (!dailyVocabulary) {
@@ -76,7 +77,7 @@ export const getUnlearnedWords = async (
       });
     }
 
-    // Lấy danh sách các từ chưa được học
+    // Lọc danh sách các từ chưa học
     const unlearnedWords = dailyVocabulary.words.filter((w) => !w.learned);
 
     return res.status(200).json({
@@ -97,17 +98,21 @@ export const updateDailyVocabulary = async (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const { word } = req.body;
 
-    // Lấy thời gian hiện tại và chuyển đổi về múi giờ +7
+    // Lấy ngày hiện tại theo múi giờ +7, chỉ giữ phần ngày (YYYY-MM-DD)
     const now = new Date();
-    const vnToday = convertToTimezone7(now);
-    vnToday.setUTCHours(0, 0, 0, 0); // Thiết lập thời gian đầu ngày theo múi giờ +7
+    const vnTodayStr = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Bangkok",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .format(now)
+      .replace(/\//g, "-");
 
+    // Tìm dữ liệu theo ngày
     const dailyVocabulary = await DailyVocabulary.findOne({
       userId,
-      date: {
-        $gte: vnToday,
-        $lt: new Date(vnToday.getTime() + 24 * 60 * 60 * 1000), // Lấy khoảng thời gian trong ngày
-      },
+      date: vnTodayStr, // So sánh với chuỗi "YYYY-MM-DD"
     });
 
     if (!dailyVocabulary) {

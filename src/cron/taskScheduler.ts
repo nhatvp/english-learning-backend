@@ -3,7 +3,7 @@ import DailyVocabulary from "../models/dailyVocabulary.model";
 import User from "../models/userModel";
 import VocabularyList from "../data/words"; // Danh sách từ vựng có sẵn trong hệ thống
 
-cron.schedule("22 23 * * *", async () => { 
+cron.schedule("52 04 * * *", async () => { 
   try {
     const users = await User.find();
 
@@ -26,14 +26,16 @@ cron.schedule("22 23 * * *", async () => {
         learned: false,
       }));
 
+      // Lấy ngày hiện tại theo múi giờ +7 và chỉ lấy phần ngày (YYYY-MM-DD)
       const now = new Date();
-      const utcTimestamp = now.getTime() + (now.getTimezoneOffset() * 6000);
-      const vnTime = new Date(utcTimestamp + (7 * 3600 * 1000));
+      const vnDate = new Date(now.getTime() + 7 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0]; // Chuyển thành chuỗi "YYYY-MM-DD"
 
       await DailyVocabulary.create({
         userId: user._id,
         words: todayWords,
-        date: vnTime, // Lưu ngày với múi giờ +7
+        date: vnDate, // Chỉ lưu ngày
         progress: 0,
         lastLearnedIndex: lastIndex + (10 - remainingWords.length),
       });
