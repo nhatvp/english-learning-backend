@@ -3,7 +3,7 @@ import DailyVocabulary from "../models/dailyVocabulary.model";
 import User from "../models/userModel";
 import VocabularyList from "../data/words"; // Danh sách từ vựng có sẵn trong hệ thống
 
-cron.schedule("52 04 * * *", async () => { 
+cron.schedule("01 00 * * *", async () => { 
   try {
     const users = await User.find();
 
